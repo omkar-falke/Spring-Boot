@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 10, 2014 9:41:09 PM by Hibernate Tools 3.6.0 -->
+<hibernate-mapping>
+    <class name="entities.User" table="user" catalog="fardb">
+        <id name="userId" type="int">
+            <column name="user_id" />
+            <generator class="assigned" />
+        </id>
+        
+        <property name="verified" type="boolean">
+            <column name="verified" not-null="true" />
+        </property>
+        
+        <property name="username" type="string">
+            <column name="username" length="20" not-null="true" />
+        </property>
+        
+        <property name="password" type="string">
+            <column name="password" length="60" not-null="true" />
+        </property>
+        
+        <property name="email" type="string">
+            <column name="email" length="254" not-null="true" />
+        </property>
+        
+        <property name="middleName" type="string">
+            <column name="middle_name" length="50" />
+        </property>
+        
+        <property name="name" type="string">
+            <column name="name" length="50" not-null="true" />
+        </property>
+        
+        <property name="surname" type="string">
+            <column name="surname" length="50" not-null="true" />
+        </property>
+        
+        <property name="telephone" type="string">
+            <column name="telephone" length="32" />
+        </property>
+        
+        <property name="telephone2" type="string">
+            <column name="telephone_2" length="32" />
+        </property>
+        
+        <property name="fax" type="string">
+            <column name="fax" length="32" />
+        </property>
+        
+        <property name="lessor" type="boolean">
+            <column name="lessor" not-null="true" />
+        </property>
+        
+        <property name="seller" type="boolean">
+            <column name="seller" not-null="true" />
+        </property>
+        
+        <property name="lessee" type="boolean">
+            <column name="lessee" not-null="true" />
+        </property>
+        
+        <property name="buyer" type="boolean">
+            <column name="buyer" not-null="true" />
+        </property>
+        
+        <property name="profilePicture" type="string">
+            <column name="profile_picture" length="128" />
+        </property>
+        
+        <property name="joinDate" type="timestamp">
+            <column name="join_date" length="19" not-null="true" />
+        </property>
+        
+        <property name="registerIp" type="int">
+            <column name="register_ip" not-null="true" />
+        </property>
+        
+        <property name="address1" type="string">
+            <column name="address_1" length="64" not-null="true" />
+        </property>
+        
+        <property name="address2" type="string">
+            <column name="address_2" length="64" />
+        </property>
+        
+        <property name="address3" type="string">
+            <column name="address_3" length="64" />
+        </property>
+        
+        <property name="city" type="string">
+            <column name="city" length="64" not-null="true" />
+        </property>
+        
+        <property name="region" type="string">
+            <column name="region" length="64" not-null="true" />
+        </property>
+        
+        <property name="postalCode" type="string">
+            <column name="postal_code" length="8" not-null="true" />
+        </property>
+        
+        <property name="country" type="string">
+            <column name="country" length="32" not-null="true" />
+        </property>
+        
+        <set name="messageses" table="messages" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="from_user_id" not-null="true" />
+            </key>
+            <one-to-many class="entities.Messages" />
+        </set>
+        <set name="properties" table="property" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="owner_user_id" not-null="true" />
+            </key>
+            <one-to-many class="entities.Property" />
+        </set>
+    </class>
+</hibernate-mapping>

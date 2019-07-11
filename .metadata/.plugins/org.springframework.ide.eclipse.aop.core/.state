@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aop-reference-model>
+<aop-project name="ajaxdemeexample"/>
+<aop-project name="AjaxWithDatabase"/>
+<aop-project name="GsonWithAjaxDemo"/>
+<aop-project name="demo"/>
+</aop-reference-model>

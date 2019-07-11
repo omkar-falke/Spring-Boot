@@ -1,0 +1,9 @@
+drop trigger shndata.delLTBDT;
+commit;
+
+create trigger shndata.insLTBDT after delete on shndata.PR_LTBDT referencing 
+new as new_row for each row mode DB2ROW 
+begin
+update shndata.pr_btmst set bt_bagqt = bt_bagqt - new_row.ltb_bagqt where bt_batno = new_row.ltb_batno and bt_grdcd = new_row.ltb_prdcd; 
+END;
+commit;

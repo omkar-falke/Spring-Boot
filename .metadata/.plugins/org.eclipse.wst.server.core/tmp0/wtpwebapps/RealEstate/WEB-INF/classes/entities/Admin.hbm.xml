@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 10, 2014 9:41:09 PM by Hibernate Tools 3.6.0 -->
+<hibernate-mapping>
+    <class name="entities.Admin" table="admin" catalog="fardb">
+        <id name="adminId" type="int">
+            <column name="admin_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="username" type="string">
+            <column name="username" length="20" not-null="true" />
+        </property>
+        <property name="password" type="string">
+            <column name="password" length="60" not-null="true" />
+        </property>
+        <property name="email" type="string">
+            <column name="email" length="254" not-null="true" />
+        </property>
+        <property name="mobile" type="string">
+            <column name="mobile" length="32" />
+        </property>
+    </class>
+</hibernate-mapping>

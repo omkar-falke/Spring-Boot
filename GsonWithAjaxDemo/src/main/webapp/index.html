@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Ajax Page Demo</title>
+<script type="text/javascript">
+function getData() {
+	alert("Hiii");
+//	var s=document.getElementById("t1").value
+	var request=new XMLHttpRequest();
+	request.open("GET","log",true);
+	request.send();
+	request.onreadystatechange=function()
+	{
+		if(request.readyState==4 && request.status==200)
+		{
+				/*alert(request.responseText); */
+				var stu=JSON.parse(this.responseText);
+				alert(stu);
+				document.getElementById("t2").innerHTML=stu.id+" "+stu.name+" "+stu.address;
+		}
+	}
+	
+	//document.getElementById("t2").innerHTML=s;
+}
+</script>
+</head>
+<body>
+<div><img src="C:\\Users\\omkar\\Desktop\\googleimg.jpg" alt="google image" width="80" height="40"></div>
+Google Search <input type="text" name="google" onclick="getData()" value="Ok" id="t1">
+<div id="t2"></div>
+</body>
+</html>

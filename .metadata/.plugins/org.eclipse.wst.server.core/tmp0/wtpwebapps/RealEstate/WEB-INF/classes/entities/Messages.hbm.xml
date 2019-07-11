@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 10, 2014 9:41:09 PM by Hibernate Tools 3.6.0 -->
+<hibernate-mapping>
+    <class name="entities.Messages" table="messages" catalog="fardb">
+        <composite-id name="id" class="entities.MessagesId">
+            <key-property name="messageId" type="int">
+                <column name="message_id" />
+            </key-property>
+            <key-property name="ownerUserId" type="int">
+                <column name="owner_user_id" />
+            </key-property>
+            <key-property name="propertyId" type="int">
+                <column name="property_id" />
+            </key-property>
+        </composite-id>
+        <many-to-one name="user" class="entities.User" fetch="select">
+            <column name="from_user_id" not-null="true" />
+        </many-to-one>
+        <many-to-one name="property" class="entities.Property" update="false" insert="false" fetch="select">
+            <column name="property_id" not-null="true" />
+            <column name="owner_user_id" not-null="true" />
+        </many-to-one>
+        <property name="message" type="string">
+            <column name="message" length="65535" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

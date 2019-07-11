@@ -1,0 +1,81 @@
+drop trigger SPLDATA.MM_MRTRG;
+commit;
+
+create trigger SPLDATA.MM_MRTRG after update of MR_STSFL on SPLDATA.MM_MRMST referencing 
+new as new_row old as old_row for each row mode DB2ROW 
+begin 
+ declare L_CNT decimal(1,0) default 0;  declare L_MATTP CHAR(1); 
+ declare END_TABLE int default 0; 
+ 
+declare C1 cursor for select COUNT(*) L_COUNT FROM SPLDATA.CO_CTMST
+ where CT_MATCD = NEW_ROW.MR_MATCD ;
+ 
+declare C2 cursor for select COUNT(*) L_COUNT FROM SPLDATA.MM_STMST
+ where ST_CMPCD = new_row.MR_CMPCD and ST_STRTP = new_row.MR_STRTP and ST_MATCD = new_row.MR_MATCD;
+
+ declare continue handler for not found 
+ set END_TABLE = 1; 
+
+IF (ifnull(new_row.MR_STSFL,'') = '5') THEN
+ open C1;
+ while END_TABLE = 0 DO 
+
+  fetch C1 into L_CNT; 
+  if L_CNT = 0 AND SUBSTR(NEW_ROW.MR_MATCD,10,1) ='8' then 
+	INSERT INTO SPLDATA.CO_CTMST(CT_GRPCD,CT_CODTP,CT_MATCD,CT_MATDS,CT_DSCTP,CT_UOMCD,CT_OWNBY,CT_USGBY,CT_LVLRF,CT_PRTNO, 
+	CT_MATRF,CT_ILDTM,CT_ELDTM,CT_TCFFL,CT_INSFL,CT_stkqt,CT_QARFL,CT_PSVFR,CT_PMRNO,CT_PMRDT,
+	CT_STKFL,CT_PKGTP,CT_PKGQT,CT_BOTFL,CT_IMPFL,CT_INDFL,CT_PROFL,CT_PSVFL,CT_PSVCD,CT_PSVDT,CT_STSFL,
+	CT_TRNFL,CT_LUSBY,CT_LUPDT) select B.CT_GRPCD,B.CT_CODTP,NEW_ROW.MR_MATCD,B.CT_MATDS,B.CT_DSCTP,B.CT_UOMCD,
+	B.CT_OWNBY,B.CT_USGBY,B.CT_LVLRF,B.CT_PRTNO,B.CT_MATRF,B.CT_ILDTM,B.CT_ELDTM,B.CT_TCFFL,B.CT_INSFL,
+	B.CT_stkqt,B.CT_QARFL,B.CT_PSVFR,NEW_ROW.MR_MRNNO,NEW_ROW.MR_MRNDT,
+	B.CT_STKFL,B.CT_PKGTP,B.CT_PKGQT,B.CT_BOTFL,B.CT_IMPFL,B.CT_INDFL,B.CT_PROFL,B.CT_PSVFL,B.CT_PSVCD,B.CT_PSVDT,B.CT_STSFL,
+	'0',NEW_ROW.MR_LUSBY,NEW_ROW.MR_LUPDT FROM SPLDATA.CO_CTMST B WHERE B.CT_MATCD = NEW_ROW.MR_ORGCD;
+	
+	INSERT INTO SPLDATA.CO_CTTRN(CTT_GRPCD,CTT_CODTP,CTT_MATCD,CTT_LVLNO,CTT_LINNO,CTT_MATDS,
+	CTT_PRTFL,CTT_STSFL,CTT_TRNFL,CTT_LUSBY,CTT_LUPDT) SELECT B.CTT_GRPCD,B.CTT_CODTP,NEW_ROW.MR_MATCD,B.CTT_LVLNO,B.CTT_LINNO,B.CTT_MATDS,
+	B.CTT_PRTFL,B.CTT_STSFL,'0',NEW_ROW.MR_LUSBY,NEW_ROW.MR_LUPDT FROM SPLDATA.CO_CTTRN B 
+	WHERE B.CTT_MATCD = NEW_ROW.MR_ORGCD;
+
+  end if;
+  fetch C1 into L_CNT; 
+  end while; 
+  close C1; 
+ set END_TABLE = 0; 
+ 
+ SET L_CNT =0;
+ open C2;
+ 
+ while END_TABLE = 0 DO 
+
+  fetch C2 into L_CNT; 
+  if L_CNT = 0  then
+  	 if substr(new_row.MR_MATCD,1,2) = '69' THEN
+		SET L_MATTP = '3';
+	 end if;	
+	 if substr(new_row.mr_MATCD,1,2) = '68' THEN
+  		SET L_MATTP = '2';
+	 else SET L_MATTP = '1';	
+	 end if;	
+	 insert into SPLDATA.mm_stmst(st_cmpcd,st_mmsbs,st_strtp,st_matcd,st_matds,st_mattp,st_uomcd,st_loccd,st_yopst,st_yopvl,st_stsfl,st_trnfl,st_lusby,st_lupdt) 
+	 values(new_row.mr_cmpcd,new_row.mr_cmpcd||new_row.mr_strtp||'00',new_row.mr_strtp,new_row.mr_matcd,' ',L_MATTP,' ','XX',0,0,' ','0',new_row.mr_lusby,new_row.mr_lupdt);	
+	 update SPLDATA.MM_STMST A SET (ST_MATDS,ST_UOMCD,ST_PPONO,ST_PPOVL,ST_PGRNO,ST_PGRDT,ST_PISNO,ST_PISDT,ST_PMRNO,ST_PMRDT,ST_PSNNO,ST_PSNDT,ST_PSTNO,ST_PSTDT) = (SELECT B.CT_MATDS,B.CT_UOMCD,B.CT_PPONO,B.CT_PPORT,B.CT_PGRNO,CT_PGRDT,CT_PISNO,CT_PISDT,NEW_ROw.MR_MRNNO,NEW_ROW.MR_MRNDT,CT_PSNNO,CT_PSNDT,CT_PSTNO,CT_PSTDT FROM SPLDATA.CO_CTMST B WHERE A.ST_CMPCD = new_row.MR_CMPCD and A.ST_STRTP = new_row.MR_STRTP and A.ST_MATCD = new_row.MR_MATCD and A.ST_MATCD = B.CT_MATCD ) WHERE ST_CMPCD = new_row.MR_CMPCD and ST_STRTP = NEW_ROW.mr_STRTP and a.st_matcd = new_row.mr_matcd;
+     update SPLDATA.MM_STMST A SET ST_LOCCD = (SELECT B.ST_LOCCD FROM SPLDATA.MM_STMST B WHERE A.ST_CMPCD = B.ST_CMPCD and A.ST_STRTP = B.ST_STRTP and A.ST_MATCD = B.ST_MATCD) WHERE ST_CMPCD = new_row.MR_CMPCD and ST_STRTP = NEW_ROW.MR_STRTP and a.st_matcd = new_row.mr_orgcd;
+
+     insert into SPLDATA.MM_STPRC(stp_cmpcd,stp_mmsbs,stp_strtp,stp_matcd,stp_matds,stp_uomcd) 
+     values(new_row.mr_cmpcd,new_row.mr_cmpcd||new_row.mr_strtp||'00',new_row.mr_strtp,new_row.mr_matcd,' ',' ');	
+     update SPLDATA.MM_STPRC A SET (STP_MATDS,STP_UOMCD) = (SELECT B.CT_MATDS,B.CT_UOMCD FROM SPLDATA.CO_CTMST B WHERE A.STP_CMPCD = new_row.MR_CMPCD and A.STP_STRTP = new_row.MR_STRTP and A.STP_MATCD = new_row.MR_ORGCD and A.STP_MATCD = B.CT_MATCD) WHERE STP_CMPCD = new_row.MR_CMPCD and STP_STRTP = NEW_ROW.MR_STRTP and a.stp_matcd = new_row.mr_orgcd;
+   end if;
+  fetch C2 into L_CNT; 
+  end while; 
+  close C2;
+  update SPLDATA.MM_STMST A SET ST_LOCCD = (SELECT B.ST_LOCCD FROM SPLDATA.MM_STMST B WHERE A.ST_CMPCD = new_row.MR_CMPCD and  A.ST_STRTP = new_row.mr_STRTP  and b.st_matcd = new_row.mr_orgcd) WHERE ST_CMPCD = new_row.MR_CMPCD and ST_CMPCD = new_row.MR_CMPCD and ST_STRTP = NEW_ROW.MR_STRTP and a.st_matcd = new_row.mr_matcd;
+
+   UPDATE SPLDATA.CO_CTMST SET CT_TRNFL ='0',CT_PMRNO = NEW_ROW.MR_MRNNO,CT_PMRDT = NEW_ROW.MR_MRNDT where  CT_MATCD = new_row.MR_MATCD;
+ UPDATE SPLDATA.MM_STMST SET ST_PMRNO = NEW_ROW.MR_MRNNO,ST_PMRDT = NEW_ROW.MR_MRNDT,ST_TRNFL ='0',ST_STKQT = IFNULL(ST_STKQT,0)+NEW_ROW.MR_RETQT,ST_YTDMR = IFNULL(ST_YTDMR,0) + IFNULL(NEW_ROW.MR_RETQT,0) where  ST_CMPCD = new_row.MR_CMPCD and ST_STRTP = new_row.MR_STRTP AND ST_MATCD = new_row.MR_MATCD;
+ UPDATE SPLDATA.MM_STPRC SET STP_YCSQT = IFNULL(STP_YCSQT,0)+NEW_ROW.MR_RETQT,STP_YCSVL = IFNULL(STP_YCSVL,0) + IFNULL(NEW_ROW.MR_MRNVL,0) where  STP_CMPCD = new_row.MR_CMPCD and STP_STRTP = new_row.MR_STRTP AND STP_MATCD = new_row.MR_MATCD;
+ UPDATE SPLDATA.MM_STPRC SET STP_YCLRT = IFNULL(STP_YCSVL,0)/IFNULL(STP_YCSQT,0) where  STP_CMPCD = new_row.MR_CMPCD and STP_STRTP = new_row.MR_STRTP AND STP_MATCD = new_row.MR_MATCD AND IFNULL(STP_YCSQT,0) >0;
+ UPDATE SPLDATA.MM_STPRC SET STP_CMRQT = IFNULL(STP_CMRQT,0)+NEW_ROW.MR_RETQT,STP_CMRVL = IFNULL(STP_CMRVL,0) + IFNULL(NEW_ROW.MR_MRNVL,0) where  STP_CMPCD = new_row.MR_CMPCD and STP_STRTP = new_row.MR_STRTP AND STP_MATCD = new_row.MR_MATCD;
+ 
+END IF;
+end;
+commit;
